@@ -1,3 +1,5 @@
+import pandas as pd
+
 def calculate_degradation(lap_times: list) -> float:
     """
     Estimates tire degradation rate in seconds per lap
@@ -20,3 +22,28 @@ def calculate_degradation(lap_times: list) -> float:
 
     assert -3.0 < rate < 5.0, f"Rate {rate:.3f} outside physical range — check input data"
     return rate
+
+def clean_mychron_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Cleans MyChron-style column headers into snake_case with unit suffixes.
+    Example: 'Speed (km/h)' -> 'speed_kmh'
+    """
+    unit_map = {
+        "km/h": "kmh", "1/min": "rpm_unit",
+        "deg": "deg", "c": "c", "s": "s"
+    }
+    
+    def clean_single(col: str) -> str:
+        if "(" in col:
+            name, unit = col.split("(", 1)
+            name = name.strip().lower().replace(" ", "_")
+            unit = unit.replace(")", "").strip().lower()
+            suffix = unit_map.get(unit, unit.replace("/", ""))
+            if suffix == "rpm_unit":
+                return name
+            return f"{name}_{suffix}" if suffix else name
+        return col.strip().lower().replace(" ", "_")
+    
+    df = df.copy()
+    df.columns = [clean_single(c) for c in df.columns]
+    return df
