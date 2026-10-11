@@ -9,6 +9,10 @@ __pycache__/
 *.csv
 *.parquet
 *.h5
+*.db
+*.sqlite
+*.sqlite3
+*.feather
 
 # OS
 .DS_Store
